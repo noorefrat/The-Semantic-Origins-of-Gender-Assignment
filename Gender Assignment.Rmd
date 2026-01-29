@@ -1,9 +1,10 @@
 ---
-title: "Gender Assignment"
+title: "SI for the paper: The Semantic Origins of Gender Assignment"
+author: "Nour Efrat-Kowalsky"
 output:
-  pdf_document: default
-  html_document:
-    df_print: paged
+  pdf_document:
+    latex_engine: xelatex
+    dev: cairo_pdf
 date: "2025-07-23"
 ---
 
@@ -23,8 +24,7 @@ library(phangorn)
 library(coda)
 library(infotheo)
 ```
-
-##1. Data:
+# 1. Data:
 In some cases two variants are found in the extant material for a lexeme: one feminine and one masculine. In the case of Arawak and Indo-European, both variants were coded in the data, but the more common variant is used in the analysis. Because the Semitic data includes long-dead languages and the corpus is limited, there is no way to determine the more common variant in the language. For these lexemes, both variants were coded and used in the analysis, such that for that lexeme in that language there are two entries. In total, there are 55 such lexemes in the dataset. 
 Moreover, in the Semitic dataset, in a handful of cases there were two lexemes (forms) in one language that corresponded to a concept. In cases where these were identical in all other respects (as we are not interested in the form of a lexeme in this study), the duplicate was deleted. This was the case for only five out of 1,480 lexemes, leaving the dataset with 1475 lexemes.
 ```{r}
@@ -39,7 +39,7 @@ Arawak <- gender_assignment %>% filter(Family == "Arawak")
 Semitic <- gender_assignment %>% filter(Family == "Semitic")
 ```
 
-#1.1. Data Visualisation:
+## 1.1. Data Visualisation:
 plot distributions of gender per family
 ```{r}
 stack <- gender_assignment %>%   mutate(Gender = factor(Gender, levels = c("C", "N", "F", "M")))
@@ -152,7 +152,7 @@ ggplot(heatmap_part2, aes(x = Gender, y = Concept, fill = Percentage)) +
             color = "black", size = 3, family = "Georgia") +
   scale_fill_gradient(low = "#e0f3db", high = "#4daf4a") +
   labs(
-    title = "Gender Proportions per Concept",
+    title = NULL,
     x = NULL,
     y = NULL
   ) +
@@ -208,9 +208,9 @@ ggplot(arawak_heatmap, aes(x = Gender, y = Concept, fill = Percentage)) +
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 25, hjust = 1, size = 12, face = "bold"),
+    axis.text.x = element_text(angle = 25, hjust = 1, size = 6, face = "bold"),
     text = element_text(family = "Georgia", size = 6),
-    plot.title = element_text(size = 20, face = "bold"),
+    plot.title = element_text(size = 10, face = "bold"),
     legend.position = "none"  # remove legend
   )
 
@@ -254,9 +254,9 @@ ggplot(ie_heatmap, aes(x = Gender, y = Concept, fill = Percentage)) +
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 25, hjust = 1, size = 12, face = "bold"),
+    axis.text.x = element_text(angle = 25, hjust = 1, size = 6, face = "bold"),
     text = element_text(family = "Georgia", size = 6),
-    plot.title = element_text(size = 20, face = "bold"),
+    plot.title = element_text(size = 10, face = "bold"),
     legend.position = "none"  # remove legend
   )
 
@@ -301,9 +301,9 @@ ggplot(semitic_heatmap, aes(x = Gender, y = Concept, fill = Percentage)) +
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 25, hjust = 1, size = 12, face = "bold"),
+    axis.text.x = element_text(angle = 25, hjust = 1, size = 6, face = "bold"),
     text = element_text(family = "Georgia", size = 6),
-    plot.title = element_text(size = 20, face = "bold"),
+    plot.title = element_text(size = 10, face = "bold"),
     legend.position = "none"  # remove legend
   )
 
@@ -443,14 +443,14 @@ ggplot(bar_data_rep_fam, aes(x = ReplaceConcept, y = Percentage, fill = Gender))
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 25, hjust = 1),
-    text = element_text(family = "Georgia", size = 8), 
+    text = element_text(family = "Georgia", size = 6), 
     plot.title = element_text(size = 10, face = "bold")
   )
 
 ggsave("plots/barplot ReplaceConcept per family.png", width = 8, height = 6, dpi = 300)
 ```
 
-##Statistical Analysis
+# 2. Statistical Analysis
 In this section we compare the level of gender cohesion of each of the 12 Semantic classes against the level of gender cohesion in the full dataset. First, we use mutual information which measures how much knowing the Concept reduces uncertainty about Gender (and vice versa).
 The level of MI in the full dataset serves as the Null Hypothesis, against which we compare the MI of the semantic classes.
 
@@ -469,6 +469,8 @@ gen_sem_con <- gender_assignment %>%
 
 ```
 
+## 2.1. Semantic Classes
+### 2.1.1 Mutual Information 
 Compute MI for the full dataset and the 12 semantic classes. Interpretation: Bars above 0 means that the group is more cohesive than full dataset. Bars below 0 means that it is less cohesive.
 
 ```{r}
@@ -508,8 +510,8 @@ obs_mi             # observed MI
 p_value <- (sum(perm_mi >= obs_mi) + 1)/(length(perm_mi) + 1)
 p_value
 ```
-
-Secondly, to check differences between categories, we compute entropy of Gender within each ReplaceConcept:
+### 2.1.2. Entropy
+Second, to check differences between categories, we compute entropy of Gender within each ReplaceConcept:
 Lower entropy → more predictable gender within that category → more cohesive.
 Higher entropy → more variation → less cohesive.
 ```{r}
@@ -571,7 +573,7 @@ ggplot(group_entropy, aes(
 
 
 ```
-#Per language family:   
+Per language family:   
 ```{r}
 # Function to compute Shannon entropy
 shannon_entropy <- function(x) {
@@ -611,7 +613,7 @@ ggplot(all_entropy, aes(
   geom_text(aes(label = ReplaceConcept), 
             position = position_stack(vjust = 0.5),  # vertically centered
             hjust = 0.5,                            # horizontally centered inside bar
-            size = 4,
+            size = 2,
             color = "black") +                       # black text for contrast
   # Family-specific entropy line
   geom_hline(aes(yintercept = full_entropy), color = "red", linetype = "dashed") +
@@ -623,7 +625,7 @@ ggplot(all_entropy, aes(
     labels = c("More cohesive","Less cohesive")
   ) +
   geom_text(aes(label = round(diff_from_full,3)), 
-            hjust = -0.1, size = 4) +  # keeps your diff labels outside the bars
+            hjust = -0.1, size = 2) +  # keeps diff labels outside the bars
   facet_wrap(~Family, scales = "free_y") +
   labs(
     title = "Gender Entropy per semantic catefory",
@@ -637,16 +639,17 @@ ggplot(all_entropy, aes(
   theme(
     legend.position = "none",
     axis.text.y = element_blank(),  # hide default y-axis labels
-    plot.title = element_text(size = 30, family = "Georgia"),
-    axis.title.x = element_text(size = 20, face = "bold", family = "Georgia"), 
-    axis.text.x = element_text(size = 16, family = "Georgia"),
-    strip.text = element_text(size = 18, face = "bold", family = "Georgia") 
+    plot.title = element_text(size = 10, family = "Georgia"),
+    axis.title.x = element_text(size = 7, face = "bold", family = "Georgia"), 
+    axis.text.x = element_text(size = 5, family = "Georgia"),
+    strip.text = element_text(size = 5, face = "bold", family = "Georgia") 
   )
 ggsave("plots/Entropy semantic category per family.png", width = 8, height = 4, dpi = 300)
 
 
 ```
 
+### 2.1.3. Chi-Square
 Next, we want to see if the differences in distributions are significant, per concept 
 ```{r}
 contingency_table <- heatmap_data %>%
@@ -666,7 +669,7 @@ residuals_df <- as.data.frame(as.table(chisq_result$stdres)) %>%
 ggplot(residuals_df, aes(x = Gender, y = Concept, fill = Residual)) +
   geom_tile(color = NA) +
   scale_fill_gradient2(
-    low = "#D55E00", mid = "white", high = "#009E73", midpoint = 0,
+    low = "#f4a582", mid = "white", high = "#92c5de", midpoint = 0,
     name = "Std. Residual"
   ) +
   labs(
@@ -676,7 +679,7 @@ ggplot(residuals_df, aes(x = Gender, y = Concept, fill = Residual)) +
   ) +
   theme_minimal() +
   theme(
-    text = element_text(family = "Georgia", size = 8),
+    text = element_text(family = "Georgia", size = 4),
     axis.text.x = element_text(angle = 0, hjust = 0.5),
     legend.title = element_text(size = 6)
   )
@@ -927,15 +930,15 @@ residuals_all$ReplaceConcept <- factor(residuals_all$ReplaceConcept,
 ggplot(residuals_all, aes(x = Gender, y = ReplaceConcept, fill = Residual)) +
   geom_tile(color = "grey95", size = 0.1) +
   geom_text(aes(label = round(Residual, 1)), 
-            size = 4, color = "gray30", family = "Georgia") +
+            size = 2, color = "gray30", family = "Georgia") +
   scale_fill_gradient2(low = "#f4a582", mid = "white", high = "#92c5de", midpoint = 0) +
   facet_wrap(~Family, scales = "free_x") +
   theme_minimal(base_family = "Georgia") +
   theme(
-    axis.text.x = element_text(angle = 0, hjust = 0.5, size = 16, face = "bold"),
-    axis.text.y = element_text(size = 16),
-    strip.text = element_text(size = 16, face = "bold"),
-    plot.title = element_text(size = 26, face = "bold"),
+    axis.text.x = element_text(angle = 0, hjust = 0.5, size = 6, face = "bold"),
+    axis.text.y = element_text(size = 8),
+    strip.text = element_text(size = 8, face = "bold"),
+    plot.title = element_text(size = 10, face = "bold"),
     legend.position = "none"  # removes the legend
   ) +
   labs(
@@ -948,9 +951,10 @@ ggsave("plots/chi-sq residuals per ReplaceConcept all families.png", width = 8, 
 ```
 
 
-##Animacy/Culture
+## 2.2. Animacy/Culture
 Now we do the same procedure for the Animacy and Culture distinctions.
-First, Mutual Information:
+
+### 2.2.1.Mutual Information:
 ```{r}
 ###animacy###
 # Ensure both are factors
@@ -1017,6 +1021,7 @@ obs_mi_cul            # observed MI
 p_value <- (sum(perm_mi >= obs_mi_cul) + 1)/(length(perm_mi) + 1)
 p_value
 ```
+### 2.2.2. Entropy
 Nest, We calculate the Entropy:
 ```{r}
 # Function to compute Shannon entropy
@@ -1142,7 +1147,7 @@ ggplot(culture_entropy, aes(
   )
 
 ```
-#Per family
+Per family
 ```{r}
 ##Animacy##
 # Function to compute Shannon entropy
@@ -1209,10 +1214,10 @@ ggplot(all_entropy, aes(
   theme(
     legend.position = "none",
     axis.text.y = element_blank(),  # hide default y-axis labels
-    plot.title = element_text(size = 30, family = "Georgia"),
-    axis.title.x = element_text(size = 20, face = "bold", family = "Georgia"), 
-    axis.text.x = element_text(size = 16, family = "Georgia"),
-    strip.text = element_text(size = 18, face = "bold", family = "Georgia") 
+    plot.title = element_text(size = 10, family = "Georgia"),
+    axis.title.x = element_text(size = 10, face = "bold", family = "Georgia"), 
+    axis.text.x = element_text(size = 8, family = "Georgia"),
+    strip.text = element_text(size = 8, face = "bold", family = "Georgia") 
   )
 
 ggsave("plots/Entropy Animacy per family.png", width = 8, height = 4, dpi = 300)
@@ -1275,17 +1280,18 @@ ggplot(all_entropy, aes(
   theme(
     legend.position = "none",
     axis.text.y = element_blank(),  # hide default y-axis labels
-    plot.title = element_text(size = 30, family = "Georgia"),
-    axis.title.x = element_text(size = 20, face = "bold", family = "Georgia"), 
-    axis.text.x = element_text(size = 16, family = "Georgia"),
-    strip.text = element_text(size = 18, face = "bold", family = "Georgia") 
+    plot.title = element_text(size = 10, family = "Georgia"),
+    axis.title.x = element_text(size = 10, face = "bold", family = "Georgia"), 
+    axis.text.x = element_text(size = 8, family = "Georgia"),
+    strip.text = element_text(size = 8, face = "bold", family = "Georgia") 
   )
 
 ggsave("plots/Entropy Culture per family.png", width = 8, height = 4, dpi = 300)
 ```
 
+### 2.2.3. Chi-Square
 Lastly, we calculate the chi-squared residuals For Animacy and Culture. 
-Culture:
+#### 2.2.3.1. Culture:
 
 ```{r}
 cul_nat <- gender_assignment %>%
@@ -1500,7 +1506,7 @@ ggplot(residuals_cul_sem, aes(x = Gender, y = Culture, fill = Residual)) +
 ggsave("plots/Semitic chi-sq residuals Culture Nature.png", width = 6, height = 3, dpi = 300)
 ```
 
-Animacy:
+#### 2.2.3.2. Animacy:
 ```{r}
 anim <- gender_assignment %>%
   mutate(Gender = recode(Gender,
@@ -1765,7 +1771,7 @@ ggplot(all_residuals, aes(x = Gender, y = Group, fill = Residual)) +
   geom_tile(color = "grey95", size = 0.1) +
   geom_text(
     aes(label = round(Residual, 1)),
-    size = 8, color = "gray30", family = "Georgia"
+    size = 2, color = "gray30", family = "Georgia"
   ) +
   scale_fill_gradient2(
     low = "#f4a582", mid = "white", high = "#92c5de",
@@ -1778,8 +1784,8 @@ ggplot(all_residuals, aes(x = Gender, y = Group, fill = Residual)) +
   ) +
   theme_minimal(base_family = "Georgia") +
   theme(
-    axis.text.x = element_text(size = 30, face = "bold"),
-    axis.text.y = element_text(size = 30),
+    axis.text.x = element_text(size = 6, face = "bold"),
+    axis.text.y = element_text(size = 10),
 
     # Remove legend
     legend.position = "none",
@@ -1788,16 +1794,16 @@ ggplot(all_residuals, aes(x = Gender, y = Group, fill = Residual)) +
     strip.text.y = element_blank(),
 
     # Keep Family labels
-    strip.text.x = element_text(size = 34, face = "bold"),
+    strip.text.x = element_text(size = 10, face = "bold"),
 
-    plot.title = element_text(size = 50, face = "bold")
+    plot.title = element_text(size = 12, face = "bold")
   )
 
 ggsave("plots/chi-sq residuals animacy culture per family.png", width = 10, height = 6, dpi = 300)
 ```
 
 
-##Sensitivity analysis
+# 3. Sensitivity analysis
 Here we want to see whether the type of gender system plays a role in the semantic mapping of gender assignment. We create a subset of the Arawak and Indo-European data that only includes languages with Masculine-Feminine gender systems, similar to the Semitic family. Then we run the same analyses on this data set. We see that the patterns that we had with the four genders are kept when we test the smaller two-gender dataset. 
 ```{r}
 gender_assignment_mf <- gender_assignment %>%
@@ -1923,7 +1929,8 @@ ggplot(residuals_rep_ie_mf, aes(x = Gender, y = ReplaceConcept, fill = Residual)
 ggsave("plots/Sensitivity/IE_MF chi-sq residuals per ReplaceConcept.png", width = 8, height = 4, dpi = 300)
 ```
 
-#Sanity check
+# 4. Sanity check
+## 4.1. Subset of the dataset
 We want to know whether the results are an artifact of the random noun selection that we have. Whether we had a different set of nouns we would still get the same pattern or not. 
 The results hold for both sampling half the data from each language and when sampling a balanced sample from all families. 
 ```{r}
@@ -2067,7 +2074,7 @@ ggsave("plots/Sensitivity/Sampled 1000 chi-sq residuals ReplaceConcept.png", wid
 ```
 
 
-## Sanity check with inflated dataset
+## 4.2. Inflated dataset
 Instead of reducing my data set, now we inflate it artificially to check the same thing.
 ```{r}
 set.seed(143)
@@ -2142,8 +2149,8 @@ ggplot(residuals_df_inf, aes(x = Gender, y = ReplaceConcept, fill = Residual)) +
 ggsave("plots/Sensitivity/Inflated chi-sq residuals ReplaceConcept.png", width = 8, height = 4, dpi = 300)
 ```
 
-
- Culture Nature and Animate Sampled data (1000 points per family):
+## 4.3. Sampled data for Animacy and Culture
+Culture/Nature and Animate/Inanimate Sampled data (1000 points per family):
 ```{r}
 #Culture
 cul_nat_num <- sampled_data_num %>%
